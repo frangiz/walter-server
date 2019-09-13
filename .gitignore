@@ -1,0 +1,6 @@
+__pycache__
+.venv
+.vscode
+app.db
+.pytest_cache
+.tox
