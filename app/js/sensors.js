@@ -1,12 +1,16 @@
 $(document).ready(function() {
   google.charts.load('current', {'packages':['line']});
+  google.charts.setOnLoadCallback(load_sensors);
+});
+
+function load_sensors() {
   get_sensors().then(function(sensors) {
     assign_colors_to_sensors(sensors);
     drawLastReadings(sensors);
     load_temp_readings(sensors.filter(s => s.sensor_type === 'temperature'));
     load_humidity_readings(sensors.filter(s => s.sensor_type === 'humidity'));
   });
-});
+}
 
 function get_sensors() {
   return $.getJSON('/api/sensors', function(sensors) {
@@ -41,7 +45,6 @@ function drawLastReadings(sensors) {
   sensors.forEach(sensor => {
     get_last_sensor_value(sensor.id).then(function(reading) {
       var utcDate = new Date(reading.timestamp + "Z");
-      console.log(sensor)
       $('#sensor-' + sensor.id + '-ts').text(formatUTCDate(utcDate));
       if (sensor.sensor_type == 'temperature') {
         $('#sensor-' + sensor.id + '-value').text(reading.value + "℃");
@@ -88,7 +91,7 @@ function drawTemperatureChart(sensors, readings) {
   for (key in keys) {
     rows.push([new Date(key + "Z")].concat(keys[key]));
   }
-  data.addRows(rows);  
+  data.addRows(rows);
   var options = {
     chart: {
       title: 'Temperature',

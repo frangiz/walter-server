@@ -25,6 +25,6 @@ def send_js(path):
     return send_from_directory("js", path)
 
 
-@bp.route("/vendor/<path:path>")
+@bp.route("/vendors/<path:path>")
 def send_vendor(path):
-    return send_from_directory("vendor", path)
+    return send_from_directory("vendors", path)
