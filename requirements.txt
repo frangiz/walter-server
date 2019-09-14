@@ -1,15 +1,7 @@
+# webserver
 flask
 python-dotenv
 
 # db
 flask-sqlalchemy
 flask-migrate
-
-# test
-pytest
-pytest-flask
-tox
-
-# Code style - moved to pre_commit.sh
-#black
-#fiximports

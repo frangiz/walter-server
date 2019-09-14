@@ -1,7 +1,5 @@
 #!/bin/bash
 
-pip install black fiximports
-
 for file in ./app/*
 do
     if [[ -f $file ]]; then
