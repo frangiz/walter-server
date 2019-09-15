@@ -1,4 +1,4 @@
-from flask import jsonify, request
+from flask import jsonify, request, current_app
 from collections import defaultdict
 
 from datetime import datetime, timedelta
@@ -42,7 +42,8 @@ def update_sensor(sensor_id):
 
 @bp.route("/sensors/<string:sensor_id>/readings", methods=["GET"])
 def get_sensor_readings(sensor_id):
-    timestamps = gen_timestamps(nbr_of_hours_back=3 * 24)
+    days_back = request.args.get("days_back") or 3
+    timestamps = gen_timestamps(nbr_of_hours_back=int(days_back) * 24)
     response = {}
     for ts in timestamps:
         response[ts.isoformat()] = None

@@ -3,6 +3,14 @@ $(document).ready(function() {
   google.charts.setOnLoadCallback(load_sensors);
 });
 
+var days_back = 3;
+
+function do_stuff(days) {
+  days_back = days;
+  load_sensors();
+}
+
+
 function load_sensors() {
   get_sensors().then(function(sensors) {
     assign_colors_to_sensors(sensors);
@@ -25,7 +33,7 @@ function get_last_sensor_value(sensor_id) {
 }
 
 function get_readings(sensor) {
-  return $.getJSON('/api/sensors/' + sensor.id + '/readings', function(readings) {
+  return $.getJSON('/api/sensors/' + sensor.id + '/readings?days_back=' + days_back, function(readings) {
     return readings;
   });
 }

@@ -13,5 +13,5 @@ do
     fi
 done
 
-black --exclude ".*|.venv|.vscode|migrations" .
+black --exclude ".tox|.venv|.vscode|migrations" .
 tox
