@@ -1,10 +1,9 @@
+import logging
+
 from config import Config
 from flask import Flask
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
-from logging import DEBUG
-from logging import Formatter
-from logging import StreamHandler
 
 
 db = SQLAlchemy()
@@ -37,13 +36,17 @@ def create_app(config_class=Config):
     app.register_blueprint(api_bp, url_prefix="/api")
 
     if not app.testing:
-        stream_handler = StreamHandler()
-        formatter = Formatter("[%(asctime)s] %(name)s %(levelname)s %(message)s")
-        stream_handler.setLevel(DEBUG)
+        werkzeug_log = logging.getLogger("werkzeug")
+        werkzeug_log.setLevel(logging.ERROR)
+
+        formatter = logging.Formatter(
+            "[%(asctime)s] %(name)s %(levelname)s %(message)s"
+        )
         for handler in app.logger.handlers:
-            if type(handler) == StreamHandler:
+            if type(handler) == logging.StreamHandler:
                 handler.setFormatter(formatter)
-        app.logger.setLevel(DEBUG)
+                handler.setLevel(logging.DEBUG)
+        app.logger.setLevel(logging.DEBUG)
         app.logger.info("Walter startup")
     return app
 
