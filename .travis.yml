@@ -2,14 +2,16 @@ dist: xenial    # required for Python >= 3.7
 language: python
 sudo: false
 
-python:
-  - "3.5"
-
-env:
-  - TOXENV=py35
-  - TOXENV=py36
-  - TOXENV=py37
-  - TOXENV=py36-black
+matrix:
+  include:
+    - env: TOXENV=py35
+      python: "3.5"
+    - env: TOXENV=py36
+      python: "3.6"
+    - env: TOXENV=py37
+      python: "3.7"
+    - env: TOXENV=py36-black
+      python: "3.6"
 
 install:
   - pip install -r requirements-test.txt
