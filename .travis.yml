@@ -4,8 +4,12 @@ sudo: false
 
 python:
   - "3.5"
-  - "3.6"
-  - "3.7"
+
+env:
+  - TOXENV=py35
+  - TOXENV=py36
+  - TOXENV=py37
+  - TOXENV=py36-black
 
 install:
   - pip install -r requirements-test.txt
