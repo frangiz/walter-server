@@ -1,0 +1,6 @@
+-r requirements.txt
+
+# test
+pytest
+pytest-flask
+tox

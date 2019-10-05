@@ -1,9 +1,4 @@
--r requirements.txt
-
-# test
-pytest
-pytest-flask
-tox
+-r requirements-test.txt
 
 # Code style
 black
