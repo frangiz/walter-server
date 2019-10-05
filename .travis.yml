@@ -17,4 +17,4 @@ install:
   - pip install -r requirements-test.txt
 
 script:
-  - tox -v -e py
+  - tox -v -e $TOXENV
