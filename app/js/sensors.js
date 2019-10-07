@@ -15,6 +15,7 @@ function load_sensors() {
   get_sensors().then(function(sensors) {
     assign_colors_to_sensors(sensors);
     drawLastReadings(sensors);
+    drawWarnings(sensors);
     load_temp_readings(sensors.filter(s => s.sensor_type === 'temperature'));
     load_humidity_readings(sensors.filter(s => s.sensor_type === 'humidity'));
   });
@@ -47,6 +48,14 @@ function assign_colors_to_sensors(sensors) {
       sensors[i].color = '#000000';
     }
   }
+}
+
+function drawWarnings(sensors) {
+  sensors.forEach(sensor => {
+    if (sensor.is_active == true) {
+      $('#sensor-' + sensor.id + '-warning').hide();
+    }
+  });
 }
 
 function drawLastReadings(sensors) {
