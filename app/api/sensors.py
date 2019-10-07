@@ -89,17 +89,23 @@ def add_humidity():
 def add_sensor_value(sensor_type):
     temp_reading = request.get_json()
     if "timestamp" not in temp_reading:
-        return bad_request("Timestamp attribute missing")
+        return bad_request("timestamp attribute missing")
     if "sensor" not in temp_reading:
-        return bad_request("Sensor attribute missing")
+        return bad_request("sensor attribute missing")
     if "value" not in temp_reading:
-        return bad_request("Value attribute missing")
+        return bad_request("value attribute missing")
+    if "next_update" not in temp_reading:
+        return bad_request("next_update attribute missing")
     sensor_id = temp_reading["sensor"].replace(":", "")
     sensor = Sensor.get_by_id(sensor_id)
     if sensor is not None and sensor.sensor_type != sensor_type:
         return bad_request("Sensor is already registered as another type")
     if sensor is None:
-        Sensor.create(id=sensor_id, name=sensor_id, sensor_type=sensor_type)
+        sensor = Sensor.create(id=sensor_id, name=sensor_id, sensor_type=sensor_type)
+    sensor.next_update = datetime.utcfromtimestamp(
+        temp_reading["timestamp"] + temp_reading["next_update"]
+    )
+    db.session.commit()
     reading = Reading(
         sensor=sensor_id,
         timestamp=datetime.utcfromtimestamp(temp_reading["timestamp"]),

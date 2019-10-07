@@ -16,12 +16,22 @@ class Sensor(db.Model):
     id = db.Column(db.String(64), primary_key=True)
     name = db.Column(db.String(64), index=True)
     sensor_type = db.Column(db.String(64), index=True)
+    next_update = db.Column(db.DateTime, default=datetime.min)
 
     def __repr__(self):
-        return "<Sensor {}, {}, {}>".format(self.id, self.name, self.sensor_type)
+        return "<Sensor {}, {}, {}, {}>".format(
+            self.id, self.name, self.sensor_type, self.next_update
+        )
 
     def to_json(self):
-        return {"id": self.id, "name": self.name, "sensor_type": self.sensor_type}
+        return {
+            "id": self.id,
+            "name": self.name,
+            "sensor_type": self.sensor_type,
+            "is_active": datetime.utcnow() <= self.next_update
+            if self.next_update is not None
+            else False,
+        }
 
     @staticmethod
     def get_all():
@@ -32,8 +42,10 @@ class Sensor(db.Model):
         return Sensor.query.filter_by(id=id).first()
 
     @staticmethod
-    def create(id, name, sensor_type):
-        sensor = Sensor(id=id, name=name, sensor_type=sensor_type)
+    def create(id, name, sensor_type, next_update=datetime.min):
+        sensor = Sensor(
+            id=id, name=name, sensor_type=sensor_type, next_update=next_update
+        )
         db.session.add(sensor)
         db.session.commit()
         return sensor

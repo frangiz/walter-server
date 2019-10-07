@@ -1,6 +1,7 @@
 import pytest
 
 from datetime import datetime
+from time import time
 
 from app import create_app
 from app import db
@@ -55,15 +56,57 @@ def test_get_sensor_when_sensor_DNE(client):
     assert res.status_code == 404
 
 
+def test_get_sensor_new_reading_set_sensor_to_active(client):
+    sensor_name = "my-sensor"
+    temp_reading = {
+        "timestamp": int(time()),
+        "sensor": sensor_name,
+        "value": 42.1,
+        "next_update": 12 * 60,
+    }
+    res = client.post(url_for("api.add_temperature"), json=temp_reading)
+    assert res.status_code == 201
+
+    res = client.get(url_for("api.get_sensor", sensor_id=sensor_name))
+    assert res.json["id"] == sensor_name
+    assert res.json["is_active"] is True
+
+
+def test_get_sensor_old_reading_set_sensor_to_inactive(client):
+    sensor_name = "my-sensor"
+    temp_reading = {
+        "timestamp": 1567447540,
+        "sensor": sensor_name,
+        "value": 42.1,
+        "next_update": 12 * 60,
+    }
+    res = client.post(url_for("api.add_temperature"), json=temp_reading)
+    assert res.status_code == 201
+
+    res = client.get(url_for("api.get_sensor", sensor_id=sensor_name))
+    assert res.json["id"] == sensor_name
+    assert res.json["is_active"] is False
+
+
 def test_update_sensor_set_name_when_sensor_exists(client):
-    sensor = Sensor.create(id="the-id", name="the-name", sensor_type="temperature")
+    sensor = Sensor.create(
+        id="the-id",
+        name="the-name",
+        sensor_type="temperature",
+        next_update=datetime.max,
+    )
 
     new_name = "some-name"
     res = client.patch(
         url_for("api.update_sensor", sensor_id=sensor.id),
         json=[{"op": "replace", "path": "/name", "value": new_name}],
     )
-    expected = Sensor(id=sensor.id, name=new_name, sensor_type=sensor.sensor_type)
+    expected = Sensor(
+        id=sensor.id,
+        name=new_name,
+        sensor_type=sensor.sensor_type,
+        next_update=datetime.max,
+    )
     assert res.status_code == 200
     assert res.json == expected.to_json()
 
@@ -90,13 +133,28 @@ def test_sensor_reading_last_when_sensor_exists(client):
     sensor_name = "my-sensor"
     client.post(
         url_for("api.add_temperature"),
-        json={"timestamp": 1567447540, "sensor": sensor_name, "value": 42.4},
+        json={
+            "timestamp": 1567447540,
+            "sensor": sensor_name,
+            "value": 42.4,
+            "next_update": 12 * 60,
+        },
     )
-    temp_reading = {"timestamp": 1567447560, "sensor": sensor_name, "value": 42.5}
+    temp_reading = {
+        "timestamp": 1567447560,
+        "sensor": sensor_name,
+        "value": 42.5,
+        "next_update": 12 * 60,
+    }
     client.post(url_for("api.add_temperature"), json=temp_reading)
     client.post(
         url_for("api.add_temperature"),
-        json={"timestamp": 1567447550, "sensor": sensor_name, "value": 42.6},
+        json={
+            "timestamp": 1567447550,
+            "sensor": sensor_name,
+            "value": 42.6,
+            "next_update": 12 * 60,
+        },
     )
 
     res = client.get(url_for("api.get_sensor_reading_last", sensor_id=sensor_name))
@@ -115,7 +173,12 @@ def test_sensor_reading_last_when_sensor_have_no_readings(client):
 
 def test_add_temperature_creates_new_sensor_if_not_already_exists(client):
     sensor_name = "my-sensor"
-    temp_reading = {"timestamp": 1567447540, "sensor": sensor_name, "value": 42.1}
+    temp_reading = {
+        "timestamp": 1567447540,
+        "sensor": sensor_name,
+        "value": 42.1,
+        "next_update": 12 * 60,
+    }
     res = client.post(url_for("api.add_temperature"), json=temp_reading)
     assert res.status_code == 201
 
@@ -158,7 +221,12 @@ def test_add_temperature_when_sensor_registered_as_other_type(client):
 
 def test_add_humidity_creates_new_sensor_if_not_already_exists(client):
     sensor_name = "my-sensor"
-    temp_reading = {"timestamp": 1567447540, "sensor": sensor_name, "value": 75.2}
+    temp_reading = {
+        "timestamp": 1567447540,
+        "sensor": sensor_name,
+        "value": 75.2,
+        "next_update": 12 * 60,
+    }
     res = client.post(url_for("api.add_humidity"), json=temp_reading)
     assert res.status_code == 201
 
