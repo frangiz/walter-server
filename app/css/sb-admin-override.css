@@ -2,3 +2,7 @@
   width: 100%; 
   min-height: 450px;
 }
+
+.fa-exclamation-triangle {
+  color: orange!important;
+}
