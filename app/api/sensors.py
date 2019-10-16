@@ -48,7 +48,7 @@ def get_sensor_readings(sensor_id):
     for ts in timestamps:
         response[ts.isoformat()] = None
     diffs = defaultdict(lambda: 10 ** 4)
-    for reading in Reading.query.filter(Reading.sensor == sensor_id):
+    for reading in Reading.get_by_id_since(sensor_id, int(days_back)):
         rounded_ts = hour_rounder(reading.timestamp)
         diff = abs((rounded_ts - reading.timestamp).total_seconds())
         if rounded_ts.isoformat() not in response:
