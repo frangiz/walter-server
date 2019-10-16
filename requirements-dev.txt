@@ -1,5 +1,5 @@
 -r requirements-test.txt
 
 # Code style
-black
+black==18.9b0
 fiximports
