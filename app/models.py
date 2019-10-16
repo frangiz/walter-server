@@ -1,5 +1,6 @@
 from app import db
 from datetime import datetime
+from datetime import timedelta
 
 
 class Reading(db.Model):
@@ -10,6 +11,13 @@ class Reading(db.Model):
 
     def __repr__(self):
         return "<Reading {}, {}, {}>".format(self.sensor, self.timestamp, self.value)
+
+    @staticmethod
+    def get_by_id_since(id, days):
+        since = datetime.utcnow().replace(
+            hour=0, minute=0, second=0, microsecond=0
+        ) + timedelta(days=-days)
+        return Reading.query.filter(Reading.sensor == id, Reading.timestamp >= since)
 
 
 class Sensor(db.Model):
