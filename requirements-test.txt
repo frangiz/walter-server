@@ -1,6 +1,6 @@
 -r requirements.txt
 
 # test
-pytest
-pytest-flask
-tox
+pytest==5.1.2
+pytest-flask==0.15.0
+tox==3.13.2

@@ -2,4 +2,4 @@
 
 # Code style
 black==19.3b0
-fiximports
+fiximports==0.1.18
