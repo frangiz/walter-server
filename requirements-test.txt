@@ -3,4 +3,4 @@
 # test
 pytest==5.1.2
 pytest-flask==0.15.0
-tox==3.13.2
+tox==3.14.0
