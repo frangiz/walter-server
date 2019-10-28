@@ -12,6 +12,12 @@ do
         fiximports $file
     fi
 done
+for file in ./scripts/*
+do
+    if [[ -f $file ]]; then
+        fiximports $file
+    fi
+done
 
 black --exclude ".tox|.venv|.vscode|migrations" .
 tox

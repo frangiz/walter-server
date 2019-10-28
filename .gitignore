@@ -4,3 +4,4 @@ __pycache__
 app.db
 .pytest_cache
 .tox
+scripts/check_status_config.json

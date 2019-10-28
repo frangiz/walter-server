@@ -1,5 +1,6 @@
 #!/bin/sh
 # this script is used to run the application in Linux
+pip install -r requirements.txt
 while true; do
     flask db upgrade
     if [[ "$?" == "0" ]]; then
