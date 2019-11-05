@@ -7,13 +7,15 @@ import ssl
 
 
 def check_status(config):
-    inactive_sensors = [
-        sensor["name"] for sensor in get_sensors() if sensor["is_active"] is False
-    ]
-    if len(inactive_sensors) > 0:
-        send_email(config, create_msg(inactive_sensors))
-    else:
-        print("All sensors is OK. No need for any action.")
+    new_state = get_current_state()
+    last_known_state = get_last_known_state()
+    activated = get_activated(new_state, last_known_state)
+    deactivated = get_deactivated(new_state, last_known_state)
+    save_state(new_state)
+    if len(activated) == 0 and len(deactivated) == 0:
+        print("No change in the state, will not send any email.")
+        return
+    send_email(config, create_msg(activated, deactivated))
 
 
 def send_email(config, msg):
@@ -25,18 +27,63 @@ def send_email(config, msg):
         print("Email sent.")
 
 
-def create_msg(sensors):
-    return """Subject: Sensors not responding
+def create_msg(activated_sensors, deactivated_sensors):
 
-        I am sorry to inform you that one or more sensors might not be active anymore. I have failed to receive status from {}.
+    msg = ["Subject: Sensors have changed state", ""]
+    if len(deactivated_sensors) > 0:
+        msg.append(
+            "I am sorry to inform you that one or more sensors might not be"
+            " active anymore. I have failed to receive status from:"
+        )
+        [msg.append("* " + sensor) for sensor in deactivated_sensors]
+        msg.append("")
+    if len(activated_sensors) > 0:
+        msg.append("Some sensors have been activated again:")
+        [msg.append("* " + sensor) for sensor in activated_sensors]
+        msg.append("")
+    msg.append("This message was generated {}".format(datetime.datetime.utcnow()))
+    msg.append("")
+    msg.append("Yours sincerely,")
+    msg.append("Walter")
 
-        This message was generated {}
+    return "\r\n".join(msg)
 
-        Yours sincerely,
-        Walter
-        """.format(
-        ", ".join(sensors), datetime.datetime.now()
-    )
+
+def get_activated(new_state, old_state):
+    result = []
+    for sensor, value in new_state.items():
+        if value is True and sensor in old_state and old_state[sensor] is False:
+            result.append(sensor)
+    return result
+
+
+def get_deactivated(new_state, old_state):
+    result = []
+    for sensor, value in new_state.items():
+        if value is False and sensor in old_state and old_state[sensor] is True:
+            result.append(sensor)
+    return result
+
+
+def get_last_known_state():
+    state_file_path = os.path.join("scripts", "check_status_state.json")
+    if not os.path.exists(state_file_path):
+        return {}
+    with open(state_file_path, "r") as f:
+        data = f.read()
+    if data == "":
+        return {}
+    return json.loads(data)
+
+
+def save_state(state):
+    state_file_path = os.path.join("scripts", "check_status_state.json")
+    with open(state_file_path, "w+") as f:
+        json.dump(state, f, ensure_ascii=False, indent=4)
+
+
+def get_current_state():
+    return {sensor["name"]: sensor["is_active"] for sensor in get_sensors()}
 
 
 def get_sensors():
