@@ -1,7 +1,10 @@
-__pycache__
-.venv
-.vscode
+__pycache__/
+.coverage
+.pytest_cache/
+.tox/
+.venv/
+.vscode/
 app.db
-.pytest_cache
-.tox
+htmlcov/
 scripts/check_status_config.json
+scripts/check_status_state.json
