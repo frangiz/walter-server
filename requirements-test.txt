@@ -3,6 +3,6 @@
 # test
 pytest==5.2.2
 pytest-flask==0.15.0
-tox==3.14.0
+tox==3.14.1
 pytest-mock==1.11.2
 requests-mock==1.7.0
