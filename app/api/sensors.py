@@ -1,4 +1,4 @@
-from flask import jsonify, request, current_app
+from flask import jsonify, request
 from collections import defaultdict
 
 from datetime import datetime, timedelta
@@ -38,6 +38,19 @@ def update_sensor(sensor_id):
         db.session.commit()
         return jsonify(sensor.to_json()), 200
     return bad_request("Not able to parse any patch changes")
+
+
+@bp.route("/sensors/<string:sensor_id>/logs", methods=["POST"])
+def add_sensor_log(sensor_id):
+    sensor = Sensor.get_by_id(sensor_id)
+    if sensor is None:
+        return not_found("Sensor not found")
+    log_request = request.get_json()
+    if "timestamp" not in log_request:
+        return bad_request("timestamp attribute missing")
+    if "message" not in log_request:
+        return bad_request("message attribute missing")
+    return jsonify({"message": "thanks"}), 201
 
 
 @bp.route("/sensors/<string:sensor_id>/readings", methods=["GET"])
