@@ -138,20 +138,14 @@ def test_sensor_add_sensor_log_when_sensor_exists(client):
         next_update=datetime.max,
     )
 
-    log = {
-        "timestamp": 1567447541,
-        "message": "some message to log here"
-    }
+    log = {"timestamp": 1567447541, "message": "some message to log here"}
     res = client.post(url_for("api.add_sensor_log", sensor_id=sensor_id), json=log)
     assert res.status_code == 201
 
 
 def test_sensor_add_sensor_log_when_sensor_DNE(client):
     sensor_id = "some-id"
-    log = {
-        "timestamp": 1567447541,
-        "message": "some message to log here"
-    }
+    log = {"timestamp": 1567447541, "message": "some message to log here"}
     res = client.post(url_for("api.add_sensor_log", sensor_id=sensor_id), json=log)
     assert res.status_code == 404
 
@@ -165,9 +159,7 @@ def test_sensor_add_sensor_log_when_timestamp_missing(client):
         next_update=datetime.max,
     )
 
-    log = {
-        "message": "some message to log here"
-    }
+    log = {"message": "some message to log here"}
     res = client.post(url_for("api.add_sensor_log", sensor_id=sensor_id), json=log)
     assert res.status_code == 400
 
@@ -181,9 +173,7 @@ def test_sensor_add_sensor_log_when_message_missing(client):
         next_update=datetime.max,
     )
 
-    log = {
-        "timestamp": 1567447541
-    }
+    log = {"timestamp": 1567447541}
     res = client.post(url_for("api.add_sensor_log", sensor_id=sensor_id), json=log)
     assert res.status_code == 400
 
