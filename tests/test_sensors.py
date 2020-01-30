@@ -178,6 +178,45 @@ def test_sensor_add_sensor_log_when_message_missing(client):
     assert res.status_code == 400
 
 
+def test_sensor_add_sensor_log_when_message_length_over_256_chars(client):
+    sensor_id = "some-id"
+    Sensor.create(
+        id=sensor_id,
+        name="the-name",
+        sensor_type="temperature",
+        next_update=datetime.max,
+    )
+
+    log = {"timestamp": 1567447541, "message": "*" * 257}
+    res = client.post(url_for("api.add_sensor_log", sensor_id=sensor_id), json=log)
+    assert res.status_code == 400
+
+
+def test_get_sensor_log_when_sensor_has_logs(client):
+    sensor_id = "some-id"
+    Sensor.create(
+        id=sensor_id, name="a name", sensor_type="temperature", next_update=datetime.max
+    )
+
+    log_row_1 = {"timestamp": 1547477541, "message": "some message to log here"}
+    log_row_2 = {"timestamp": 1547478541, "message": "some other message to log here"}
+    client.post(url_for("api.add_sensor_log", sensor_id=sensor_id), json=log_row_1)
+    client.post(url_for("api.add_sensor_log", sensor_id=sensor_id), json=log_row_2)
+
+    res = client.get(url_for("api.get_sensor_log", sensor_id=sensor_id))
+
+    assert res.status_code == 200
+    for row_in_res in res.json:
+        assert "id" in row_in_res
+        assert row_in_res["timestamp"] in ["2019-01-14T14:52:21", "2019-01-14T15:09:01"]
+        assert row_in_res["message"] in log_row_1["message"] or log_row_2["message"]
+
+
+def test_get_sensor_log_when_sensor_DNE(client):
+    res = client.get(url_for("api.get_sensor_log", sensor_id="some-id"))
+    assert res.status_code == 404
+
+
 def test_sensor_reading_last_when_sensor_exists(client):
     sensor_name = "my-sensor"
     client.post(

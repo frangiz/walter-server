@@ -4,7 +4,7 @@ from collections import defaultdict
 from datetime import datetime, timedelta
 
 from app import db
-from app.models import Reading, Sensor
+from app.models import Reading, Sensor, LogRow
 
 from app.api import bp
 from app.api.errors import bad_request, not_found
@@ -50,7 +50,26 @@ def add_sensor_log(sensor_id):
         return bad_request("timestamp attribute missing")
     if "message" not in log_request:
         return bad_request("message attribute missing")
+    if len(log_request["message"]) > 256:
+        return bad_request("message attribute too long, max is 256")
+    LogRow.create(
+        sensor_id=sensor_id,
+        timestamp=datetime.utcfromtimestamp(log_request["timestamp"]),
+        message=log_request["message"],
+    )
     return jsonify({"message": "thanks"}), 201
+
+
+@bp.route("/sensors/<string:sensor_id>/logs", methods=["GET"])
+def get_sensor_log(sensor_id):
+    sensor = Sensor.get_by_id(sensor_id)
+    if sensor is None:
+        return not_found("Sensor not found")
+    rows = LogRow.get_by_sensor_id(sensor_id)
+    res = []
+    for row in rows:
+        res.append(row.to_json())
+    return jsonify(res), 200
 
 
 @bp.route("/sensors/<string:sensor_id>/readings", methods=["GET"])

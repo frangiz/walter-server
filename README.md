@@ -49,6 +49,21 @@ curl -X GET http://127.0.0.1:5000/api/sensors/my-sensor-1/readings/last
 curl -X GET 'http://127.0.0.1:5000/api/sensors/my-sensor-1/readings?days_back=5'
 ```
 
+### Post a log row for a sensor
+```
+curl -X POST 'http://127.0.0.1:5000/api/sensors/my-sensor-1/logs' \
+  -H 'Content-Type: application/json' \
+  -d '{
+	"timestamp": 1580417092,
+	"message": "some message"
+}'
+```
+
+### Get all logs for a sensor
+```
+curl -X GET 'http://127.0.0.1:5000/api/sensors/my-sensor-1/logs'
+```
+
 ## Database
 
 ### After a complete reset of the database

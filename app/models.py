@@ -57,3 +57,33 @@ class Sensor(db.Model):
         db.session.add(sensor)
         db.session.commit()
         return sensor
+
+
+class LogRow(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    sensor_id = db.Column(db.String(64), nullable=False, index=True)
+    timestamp = db.Column(db.DateTime, default=datetime.min)
+    message = db.Column(db.String(256), nullable=False)
+
+    def __repr__(self):
+        return "<LogRow {}, {}, {}, {}>".format(
+            self.id, self.sensor_id, self.timestamp, self.message
+        )
+
+    def to_json(self):
+        return {
+            "id": self.id,
+            "timestamp": self.timestamp.isoformat(),
+            "message": self.message,
+        }
+
+    @staticmethod
+    def get_by_sensor_id(sensor_id):
+        return LogRow.query.filter_by(sensor_id=sensor_id).all()
+
+    @staticmethod
+    def create(sensor_id, timestamp, message):
+        log_row = LogRow(sensor_id=sensor_id, timestamp=timestamp, message=message)
+        db.session.add(log_row)
+        db.session.commit()
+        return log_row
