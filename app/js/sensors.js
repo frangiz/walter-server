@@ -18,6 +18,7 @@ function load_sensors() {
     drawWarnings(sensors);
     load_temp_readings(sensors.filter(s => s.sensor_type === 'temperature'));
     load_humidity_readings(sensors.filter(s => s.sensor_type === 'humidity'));
+    load_logs(sensors);
   });
 }
 
@@ -36,6 +37,12 @@ function get_last_sensor_value(sensor_id) {
 function get_readings(sensor) {
   return $.getJSON('/api/sensors/' + sensor.id + '/readings?days_back=' + days_back, function(readings) {
     return readings;
+  });
+}
+
+function get_logs_for_sensor(sensor) {
+  return $.getJSON('/api/sensors/' + sensor.id + '/logs', function(logs) {
+    return logs;
   });
 }
 
@@ -163,7 +170,7 @@ function drawHumidityChart(sensors, readings) {
   for (key in keys) {
     rows.push([new Date(key + "Z")].concat(keys[key]));
   }
-  data.addRows(rows);  
+  data.addRows(rows);
   var options = {
     chart: {
       title: 'Humidity',
@@ -185,6 +192,24 @@ function drawHumidityChart(sensors, readings) {
   var chart = new google.charts.Line(document.getElementById('humidityChart'));
   chart.draw(data, google.charts.Line.convertOptions(options));
 }
+
+
+async function load_logs(sensors) {
+  var logs = await Promise.all(sensors.map(get_logs_for_sensor));
+  var logBody = '';
+  for (var i=0; i < sensors.length; i++) {
+    if (logs[i].length == 0) {
+      continue;
+    }
+    logBody += '<div id="#logsForSensor' +i +'" class="text-xs font-weight-bold text-uppercase mb-1">' +sensors[i].name +'</div>';
+    logs[i].reverse();
+    logs[i].forEach(logrow => {
+      logBody += '<div class="text-xs mb-1">' +formatUTCDate(new Date(logrow.timestamp + "Z")) +': ' +logrow.message +'</div>';
+    });
+  }
+  $('#logsBody').append(logBody);
+}
+
 
 /* There must be a better way to do this? */
 function formatUTCDate(utcDate) {
