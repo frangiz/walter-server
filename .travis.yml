@@ -1,8 +1,8 @@
 dist: xenial    # required for Python >= 3.7
 language: python
-sudo: false
+os: linux
 
-matrix:
+jobs:
   include:
     - env: TOXENV=py35
       python: "3.5"
