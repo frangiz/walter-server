@@ -15,6 +15,7 @@ function load_sensors() {
   get_sensors().then(function(sensors) {
     assign_colors_to_sensors(sensors);
     drawLastReadings(sensors);
+    drawFirmwareVersion(sensors);
     drawWarnings(sensors);
     load_temp_readings(sensors.filter(s => s.sensor_type === 'temperature'));
     load_humidity_readings(sensors.filter(s => s.sensor_type === 'humidity'));
@@ -80,6 +81,14 @@ function drawLastReadings(sensors) {
       
       $('#sensor-' + sensor.id + '-color').css('border-left', '.25rem solid ' + sensor.color, 'important');
     });
+  });
+}
+
+function drawFirmwareVersion(sensors) {
+  sensors.forEach(sensor => {
+    if (sensor.firmware_version != null) {
+      $('#sensor-' + sensor.id + '-firmware').text("Firmware version: " +sensor.firmware_version);
+    }
   });
 }
 

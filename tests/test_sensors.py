@@ -106,6 +106,7 @@ def test_update_sensor_set_name_when_sensor_exists(client):
         name=new_name,
         sensor_type=sensor.sensor_type,
         next_update=datetime.max,
+        firmware_version="",
     )
     assert res.status_code == 200
     assert res.json == expected.to_json()

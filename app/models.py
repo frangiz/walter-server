@@ -25,10 +25,15 @@ class Sensor(db.Model):
     name = db.Column(db.String(64), index=True)
     sensor_type = db.Column(db.String(64), index=True)
     next_update = db.Column(db.DateTime, default=datetime.min)
+    firmware_version = db.Column(db.String(8), default="")
 
     def __repr__(self):
-        return "<Sensor {}, {}, {}, {}>".format(
-            self.id, self.name, self.sensor_type, self.next_update
+        return "<Sensor {}, {}, {}, {}, {}>".format(
+            self.id,
+            self.name,
+            self.sensor_type,
+            self.next_update,
+            self.firmware_version,
         )
 
     def to_json(self):
@@ -39,6 +44,7 @@ class Sensor(db.Model):
             "is_active": datetime.utcnow() <= self.next_update
             if self.next_update is not None
             else False,
+            "firmware_version": self.firmware_version,
         }
 
     @staticmethod
@@ -50,9 +56,13 @@ class Sensor(db.Model):
         return Sensor.query.filter_by(id=id).first()
 
     @staticmethod
-    def create(id, name, sensor_type, next_update=datetime.min):
+    def create(id, name, sensor_type, next_update=datetime.min, firmware_version=""):
         sensor = Sensor(
-            id=id, name=name, sensor_type=sensor_type, next_update=next_update
+            id=id,
+            name=name,
+            sensor_type=sensor_type,
+            next_update=next_update,
+            firmware_version=firmware_version,
         )
         db.session.add(sensor)
         db.session.commit()

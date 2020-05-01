@@ -2,6 +2,9 @@ import os
 import glob
 from flask import jsonify, request, current_app, send_from_directory
 
+from app import db
+from app.models import Sensor
+
 from app.api import bp
 from app.api.errors import error_response, bad_request
 
@@ -20,12 +23,11 @@ def get_new_firmware():
     dev_id = request.args.get("dev_id", default=None)
     if dev_id is None:
         return bad_request("Required parameter 'dev_id' is missing.")
-    dev_id = dev_id.lower()
 
     current_app.logger.debug(
         "ver: " + ver + ", dev: " + dev_type + " dev_id: " + dev_id
     )
-    # TODO: Update sensor if found with current firmware version
+    set_version_on_sensors(ver, dev_id)
 
     latest_firmware = find_latest_firmware(ver, dev_type)
     if latest_firmware is None:
@@ -51,3 +53,10 @@ def find_latest_firmware(ver, dev_type):
         if firmware_filename != dev_type + "-" + str(ver) + ".bin":
             return firmware_filename
     return None
+
+
+def set_version_on_sensors(ver, dev_id):
+    for s in Sensor.get_all():
+        if s.id.startswith(dev_id + "-"):
+            s.firmware_version = str(ver)
+    db.session.commit()
