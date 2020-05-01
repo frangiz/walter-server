@@ -8,3 +8,5 @@ app.db
 htmlcov/
 scripts/check_status_config.json
 scripts/check_status_state.json
+firmwares/
+.mypy_cache/

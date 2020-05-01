@@ -2,4 +2,4 @@ from flask import Blueprint
 
 bp = Blueprint("api", __name__)
 
-from app.api import sensors, errors
+from app.api import sensors, errors, firmware
