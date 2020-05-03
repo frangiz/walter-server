@@ -3,22 +3,12 @@ $(document).ready(function() {
   google.charts.setOnLoadCallback(load_sensors);
 });
 
-var days_back = 3;
-
-function do_stuff(days) {
-  days_back = days;
-  load_sensors();
-}
-
-
 function load_sensors() {
   get_sensors().then(function(sensors) {
     assign_colors_to_sensors(sensors);
     drawLastReadings(sensors);
     drawFirmwareVersion(sensors);
     drawWarnings(sensors);
-    load_temp_readings(sensors.filter(s => s.sensor_type === 'temperature'));
-    load_humidity_readings(sensors.filter(s => s.sensor_type === 'humidity'));
     load_logs(sensors);
   });
 }
@@ -91,117 +81,6 @@ function drawFirmwareVersion(sensors) {
     }
   });
 }
-
-async function load_temp_readings(sensors) {
-  var readings = await Promise.all(sensors.map(get_readings));
-  drawTemperatureChart(sensors, readings);
-}
-
-function drawTemperatureChart(sensors, readings) {
-  var data = new google.visualization.DataTable();
-  data.addColumn('date', 'Timestamps');
-  sensors.forEach(sensor => {
-    data.addColumn('number', sensor.name);
-  });
-
-  var keys = {}
-  /* Collect all the keys first. */
-  readings.forEach(sensorReading => {
-    Object.keys(sensorReading).forEach(key => {
-      keys[key] = [];
-    });
-  });
-  for (key in keys) {
-    for (var i = 0; i < readings.length; i++) {
-      if (key in readings[i]) {
-        keys[key].push(readings[i][key]);
-      } else {
-        keys[key].push(NaN);
-      }
-    }
-  }
-  var rows = [];
-  for (key in keys) {
-    rows.push([new Date(key + "Z")].concat(keys[key]));
-  }
-  data.addRows(rows);
-  var options = {
-    chart: {
-      title: 'Temperature',
-    },
-    series: {},
-    hAxis: {
-      format: 'dd/MM HH:mm:ss',
-    },
-    vAxis: {
-      textPosition: 'none',
-    },
-    legend: { position: 'none' }, /* Currently not supported to set bottom? */
-  };
-
-  for (var i = 0; i < sensors.length; i++) {
-    options.series[i] = { color: sensors[i].color }
-  }
-
-  var chart = new google.charts.Line(document.getElementById('temperatureChart'));
-  chart.draw(data, google.charts.Line.convertOptions(options));
-}
-
-async function load_humidity_readings(sensors) {
-  var readings = await Promise.all(sensors.map(get_readings));
-  drawHumidityChart(sensors, readings);
-}
-
-function drawHumidityChart(sensors, readings) {
-  var data = new google.visualization.DataTable();
-  data.addColumn('date', 'Timestamps');
-  sensors.forEach(sensor => {
-    data.addColumn('number', sensor.name);
-  });
-
-  var keys = {}
-  /* Collect all the keys first. */
-  readings.forEach(sensorReading => {
-    Object.keys(sensorReading).forEach(key => {
-      keys[key] = [];
-    });
-  });
-  for (key in keys) {
-    for (var i = 0; i < readings.length; i++) {
-      if (key in readings[i]) {
-        keys[key].push(readings[i][key]);
-      } else {
-        keys[key].push(NaN);
-      }
-    }
-  }
-  var rows = [];
-  for (key in keys) {
-    rows.push([new Date(key + "Z")].concat(keys[key]));
-  }
-  data.addRows(rows);
-  var options = {
-    chart: {
-      title: 'Humidity',
-    },
-    series: {},
-    hAxis: {
-      format: 'dd/MM HH:mm:ss',
-    },
-    vAxis: {
-      textPosition: 'none',
-    },
-    legend: { position: 'none' }, /* Currently not supported to set bottom? */
-  };
-
-  for (var i = 0; i < sensors.length; i++) {
-    options.series[i] = { color: sensors[i].color }
-  }
-
-  var chart = new google.charts.Line(document.getElementById('humidityChart'));
-  chart.draw(data, google.charts.Line.convertOptions(options));
-}
-
 
 async function load_logs(sensors) {
   var logs = await Promise.all(sensors.map(get_logs_for_sensor));
