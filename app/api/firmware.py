@@ -49,7 +49,7 @@ def find_latest_firmware(ver, dev_type):
         os.makedirs("firmwares")
     firmwares = sorted(glob.glob("firmwares/" + dev_type + "-*.bin"), reverse=True)
     if len(firmwares) > 0:
-        firmware_filename = firmwares[0].replace("firmwares\\", "")
+        firmware_filename = firmwares[0].replace("firmwares" + os.sep, "")
         if firmware_filename != dev_type + "-" + str(ver) + ".bin":
             return firmware_filename
     return None
