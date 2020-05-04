@@ -4,5 +4,5 @@
 pytest==5.4.1
 pytest-flask==1.0.0
 tox==3.15.0
-pytest-mock==2.0.0
+pytest-mock==3.1.0
 requests-mock==1.8.0
