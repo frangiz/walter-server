@@ -4,6 +4,8 @@
 
 The server for Walter written in Python.
 
+> NOTE: The development of this repository has been paused. I'm currently testing Home Assistant instead.
+
 ## Dashboard
 ![Dashboard](dashboard.png)
 
